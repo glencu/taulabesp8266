@@ -43,6 +43,7 @@ MODULES += Stabilization
 MODULES += FirmwareIAP
 MODULES += Telemetry
 
+OPTMODULES += ESP8266
 OPTMODULES += GPS
 OPTMODULES += CameraStab
 OPTMODULES += Autotune
@@ -60,7 +61,7 @@ OPTMODULES += ComUsbBridge
 OPTMODULES += Airspeed/revolution
 OPTMODULES += UAVOHoTTBridge
 OPTMODULES += UAVOFrSKYSensorHubBridge
-OPTMODULES += UAVOLighttelemetryBridge
+#OPTMODULES += UAVOLighttelemetryBridge
 OPTMODULES += UAVOFrSKYSPortBridge
 OPTMODULES += Geofence
 
@@ -129,6 +130,7 @@ SRC += $(MATHLIB)/atmospheric_math.c
 include $(PIOS)/STM32F30x/library_fw.mk
 
 ## PIOS Hardware (Common)
+SRC += $(PIOSCOMMON)/pios_esp8266.c
 SRC += $(PIOSCOMMON)/pios_delay.c
 SRC += $(PIOSCOMMON)/pios_l3gd20.c
 SRC += $(PIOSCOMMON)/pios_lsm303.c

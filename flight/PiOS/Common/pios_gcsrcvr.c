@@ -36,7 +36,7 @@
 
 #include "pios_gcsrcvr_priv.h"
 
-static GCSReceiverData gcsreceiverdata;
+GCSReceiverData gcsreceiverdata;
 
 /* Provide a RCVR driver */
 static int32_t PIOS_GCSRCVR_Get(uintptr_t rcvr_id, uint8_t channel);
@@ -82,7 +82,7 @@ static struct pios_gcsrcvr_dev *PIOS_gcsrcvr_alloc(void)
 	return(gcsrcvr_dev);
 }
 
-static void gcsreceiver_updated(UAVObjEvent * ev)
+void gcsreceiver_updated(UAVObjEvent * ev)
 {
 	struct pios_gcsrcvr_dev *gcsrcvr_dev = global_gcsrcvr_dev;
 	if (ev->obj == GCSReceiverHandle()) {

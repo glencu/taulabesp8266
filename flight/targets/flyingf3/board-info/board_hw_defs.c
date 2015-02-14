@@ -1551,10 +1551,12 @@ static const struct pios_usart_cfg pios_usart1_cfg = {
 		.gpio = GPIOA,
 		.init = {
 			.GPIO_Pin   = GPIO_Pin_9,
-			.GPIO_Speed = GPIO_Speed_2MHz,
+			//.GPIO_Speed = GPIO_Speed_2MHz,
+			.GPIO_Speed = GPIO_Speed_50MHz,
 			.GPIO_Mode  = GPIO_Mode_AF,
 			.GPIO_OType = GPIO_OType_PP,
-			.GPIO_PuPd  = GPIO_PuPd_UP
+			//.GPIO_PuPd  = GPIO_PuPd_UP
+			.GPIO_PuPd  = GPIO_PuPd_NOPULL
 		},
 		.pin_source = GPIO_PinSource9,
 	},
@@ -1562,10 +1564,10 @@ static const struct pios_usart_cfg pios_usart1_cfg = {
 		.gpio = GPIOC,
 		.init = {
 			.GPIO_Pin   = GPIO_Pin_5,
-			.GPIO_Speed = GPIO_Speed_2MHz,
+			.GPIO_Speed = GPIO_Speed_50MHz,
 			.GPIO_Mode  = GPIO_Mode_AF,
 			.GPIO_OType = GPIO_OType_PP,
-			.GPIO_PuPd  = GPIO_PuPd_UP
+			.GPIO_PuPd  = GPIO_PuPd_NOPULL
 		},
 		.pin_source = GPIO_PinSource5,
 	},

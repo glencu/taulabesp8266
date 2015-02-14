@@ -153,6 +153,9 @@ static const struct pios_bmp085_cfg pios_bmp085_cfg = {
  */
 uintptr_t pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE];
 
+#define PIOS_COM_ESP8266_RX_BUF_LEN 64
+#define PIOS_COM_ESP8266_TX_BUF_LEN 64
+
 #define PIOS_COM_TELEM_RF_RX_BUF_LEN 512
 #define PIOS_COM_TELEM_RF_TX_BUF_LEN 512
 
@@ -186,6 +189,7 @@ uintptr_t pios_com_debug_id;
 uintptr_t pios_com_gps_id;
 uintptr_t pios_com_telem_usb_id;
 uintptr_t pios_com_telem_rf_id;
+uintptr_t pios_com_esp8266_id;
 uintptr_t pios_com_vcp_id;
 uintptr_t pios_com_bridge_id;
 uintptr_t pios_internal_adc_id;
@@ -581,6 +585,11 @@ void PIOS_Board_Init(void) {
 	HwFlyingF3Uart1Get(&hw_uart1);
 	switch (hw_uart1) {
 	case HWFLYINGF3_UART1_DISABLED:
+		break;
+	case HWFLYINGF3_UART1_ESP8266:
+#if defined(PIOS_INCLUDE_ESP8266) && defined(PIOS_INCLUDE_USART) && defined(PIOS_INCLUDE_COM)
+		PIOS_Board_configure_com(&pios_usart1_cfg, PIOS_COM_ESP8266_RX_BUF_LEN, PIOS_COM_ESP8266_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_esp8266_id);
+#endif
 		break;
 	case HWFLYINGF3_UART1_TELEMETRY:
 #if defined(PIOS_INCLUDE_TELEMETRY_RF) && defined(PIOS_INCLUDE_USART) && defined(PIOS_INCLUDE_COM)
