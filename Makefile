@@ -77,7 +77,7 @@ ALL_BOARDS :=
 include $(ROOT_DIR)/flight/targets/*/target-defs.mk
 
 # OpenPilot GCS build configuration (debug | release)
-GCS_BUILD_CONF ?= debug
+GCS_BUILD_CONF ?= release
 
 ##############################
 #

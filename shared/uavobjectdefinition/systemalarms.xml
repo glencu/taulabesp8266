@@ -21,7 +21,8 @@
 				<elementname>FlightTime</elementname>
 				<elementname>I2C</elementname>
 				<elementname>GPS</elementname>
-                		<elementname>AltitudeHold</elementname>
+                <elementname>ESP8266</elementname>
+                <elementname>AltitudeHold</elementname>
 				<elementname>BootFault</elementname>
 			</elementnames>
 		</field>

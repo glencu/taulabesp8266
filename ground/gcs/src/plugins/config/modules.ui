@@ -20,7 +20,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="tabsClosable">
       <bool>false</bool>
@@ -63,6 +63,16 @@
          </property>
          <property name="text">
           <string>GPS</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbESP8266">
+         <property name="toolTip">
+          <string>Select to enable ESP8266 module</string>
+         </property>
+         <property name="text">
+          <string>ESP8266</string>
          </property>
         </widget>
        </item>
@@ -189,7 +199,7 @@
          <property name="text">
           <string>Geofence</string>
          </property>
-        </widget>        
+        </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="cbUAVOFrSkySPortBridge">
@@ -220,8 +230,14 @@
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QGroupBox" name="groupBox">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
          <property name="title">
           <string>Module Baudrates</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
          </property>
          <layout class="QFormLayout" name="formLayout_4">
           <property name="fieldGrowthPolicy">
@@ -244,14 +260,14 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="3" column="0">
            <widget class="QLabel" name="lbGPS">
             <property name="text">
              <string>GPS: </string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="3" column="1">
            <widget class="QComboBox" name="cb_gpsSpeed">
             <property name="objrelation" stdset="0">
              <stringlist>
@@ -261,14 +277,14 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="lbComBridge">
             <property name="text">
              <string>ComBridge:</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="4" column="1">
            <widget class="QComboBox" name="cb_combridgeSpeed">
             <property name="objrelation" stdset="0">
              <stringlist>
@@ -278,14 +294,14 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="lbLightTelemetry">
             <property name="text">
              <string>LightTelemetry:</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="5" column="1">
            <widget class="QComboBox" name="cb_LightTelemetrySpeed">
             <property name="objrelation" stdset="0">
              <stringlist>
@@ -295,7 +311,7 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="6" column="1">
            <widget class="QComboBox" name="cb_MavlinkSpeed">
             <property name="objrelation" stdset="0">
              <stringlist>
@@ -305,10 +321,28 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="6" column="0">
            <widget class="QLabel" name="lbMavLink">
             <property name="text">
              <string>MavLink:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="cb_esp8266Speed">
+            <property name="objrelation" stdset="0">
+             <stringlist>
+              <string>objname:ModuleSettings</string>
+              <string>fieldname:ESP8266Speed</string>
+              <string></string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="lb_ESP8266">
+            <property name="text">
+             <string>ESP8266</string>
             </property>
            </widget>
           </item>
@@ -330,6 +364,81 @@
             <stringlist>
              <string>objname:ModuleSettings</string>
              <string>fieldname:GPSDataProtocol</string>
+            </stringlist>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout_12">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_33">
+           <property name="text">
+            <string>ESP8266 Client IP</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="esp8266_ip_oct1">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximum">
+            <number>255</number>
+           </property>
+           <property name="objrelation" stdset="0">
+            <stringlist>
+             <string>objname:ModuleSettings</string>
+             <string>fieldname:ESP8266ClientIpOctet1</string>
+            </stringlist>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="esp8266_ip_oct2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximum">
+            <number>255</number>
+           </property>
+           <property name="objrelation" stdset="0">
+            <stringlist>
+             <string>objname:ModuleSettings</string>
+             <string>fieldname:ESP8266ClientIpOctet2</string>
+            </stringlist>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="esp8266_ip_oct3">
+           <property name="maximum">
+            <number>255</number>
+           </property>
+           <property name="objrelation" stdset="0">
+            <stringlist>
+             <string>objname:ModuleSettings</string>
+             <string>fieldname:ESP8266ClientIpOctet3</string>
+            </stringlist>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="esp8266_ip_oct4">
+           <property name="maximum">
+            <number>255</number>
+           </property>
+           <property name="objrelation" stdset="0">
+            <stringlist>
+             <string>objname:ModuleSettings</string>
+             <string>fieldname:ESP8266ClientIpOctet4</string>
             </stringlist>
            </property>
           </widget>
@@ -839,7 +948,6 @@
        </item>
       </layout>
      </widget>
-
      <widget class="QWidget" name="tabGeofence">
       <attribute name="title">
        <string>Geofence</string>
@@ -926,7 +1034,6 @@
        </item>
       </layout>
      </widget>
-
      <widget class="QWidget" name="tabHoTTTelemetry">
       <attribute name="title">
        <string>HoTT Telemetry</string>
@@ -981,8 +1088,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>392</width>
-            <height>674</height>
+            <width>387</width>
+            <height>598</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout">

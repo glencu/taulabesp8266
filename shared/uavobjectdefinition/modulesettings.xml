@@ -12,6 +12,7 @@
 				<elementname>FixedWingPathFollower</elementname>
 				<elementname>Fault</elementname>
 				<elementname>GPS</elementname>
+                <elementname>ESP8266</elementname>
 				<elementname>OveroSync</elementname>
 				<elementname>PathPlanner</elementname>
 				<elementname>TxPID</elementname>
@@ -59,6 +60,21 @@
 		<field name="GPSDataProtocol" units="" type="enum" elements="1" options="NMEA,UBX" defaultvalue="UBX"/>
 		<field name="GPSAutoConfigure" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="TRUE"/>
 
+        
+        <!-- ESP8266 Settings -->
+		<field name="ESP8266Speed" units="bps" type="enum" elements="1" defaultvalue="9600">
+			<options>
+				<option>9600</option>
+				<option>115200</option>
+			</options>
+		</field>
+        
+        <field name="ESP8266ClientIpOctet1" units="" type="uint8" elements="1" defaultvalue="0"/>
+        <field name="ESP8266ClientIpOctet2" units="" type="uint8" elements="1" defaultvalue="0"/>
+        <field name="ESP8266ClientIpOctet3" units="" type="uint8" elements="1" defaultvalue="0"/>
+        <field name="ESP8266ClientIpOctet4" units="" type="uint8" elements="1" defaultvalue="0"/>
+        
+        
 		<!-- ComUsbBridge Module Settings -->
 		<field name="ComUsbBridgeSpeed" units="bps" type="enum" elements="1" defaultvalue="57600">
 			<options>
