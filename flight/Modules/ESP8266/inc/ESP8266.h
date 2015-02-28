@@ -29,8 +29,9 @@ void blockingReceiveStringFromEsp8266();
 void nonBlockingReceiveStringFromEsp8266();
 uint8_t getResponseFromEsp8266();
 void retrieveDataFromEsp8266();
-void retrieveDataFromEsp82661();
-
+uint8_t retrieveDataFromEsp82661();
+void processRcvdData();
+void processTimeout();
 uint8_t confirmData();
 uint8_t findColon(uint8_t);
 uint8_t configureEsp8266( const char* command,uint16_t timeout);

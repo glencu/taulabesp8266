@@ -133,21 +133,11 @@ void createCipStart() {
 
 }
 
+
+
 static void Esp8266Task(void *parameters) {
 
-	uint8_t cntr = 0;
-	uint8_t data_changed = 0;
-	uint8_t *oldGcr = NULL;
-	uint8_t *newGcr = NULL;
-	volatile uint32_t numOfBadFrames = 0 ;
-	volatile uint32_t timeLast=0;
-	volatile uint32_t timeLastMean=0;
-	volatile uint32_t shortestTime=0xFFFFFFFF;
 
-	volatile uint8_t packetReceived=0;
-	volatile uint32_t numOfFrames = 0 ;
-	volatile uint32_t meanTime=0;
-	volatile uint32_t sumOfTime=0;
 
 	while (1) {
 		PIOS_Thread_Sleep(1000);
@@ -167,62 +157,14 @@ static void Esp8266Task(void *parameters) {
 		PIOS_Thread_Sleep(10);
 		configureEsp8266(atCipBuffer, 1000);
 		PIOS_Thread_Sleep(10);
-		//configureEsp8266(ATCIPSTATUS,700);
 
 		while (1) {
-			retrieveDataFromEsp82661();
+			uint8_t isDataRcvd = retrieveDataFromEsp82661();
 
-			uint8_t startingIndex = confirmData();
-
-			if (startingIndex != 255) {
-				uint8_t colonIndex = findColon(startingIndex);
-				if (colonIndex == 0 ) continue;
-				data_changed = 0;
-				oldGcr = (uint8_t*) &local_gcrdata.Channel[0];
-				newGcr = (uint8_t*) &esp8266_rx_buffer[colonIndex+1];
-				for (cntr = 0; cntr < 16; cntr++) {
-
-					//if (local_gcrdata.Channel[cntr] != esp8266_rx_buffer[10 + cntr])
-					if (oldGcr[cntr] != newGcr[cntr]) {
-						data_changed = 1;
-						break;
-					}
-				}
-
-				if (data_changed == 1) {
-					memcpy(&local_gcrdata.Channel[0], &esp8266_rx_buffer[colonIndex+1],
-							8 * sizeof(uint16_t));
-					GCSReceiverSet(&local_gcrdata);
-					uint32_t timeNow = PIOS_Thread_Systime();
-					if (timeNow - timeLast < shortestTime)
-						shortestTime =timeNow - timeLast;
-					timeLast = timeNow;
-
-					packetReceived = 1;
-
-					if (timeLastMean == 0 ) timeLastMean= PIOS_Thread_Systime();
-				}
-				//GCSReceiverUpdated();
-			}
+			if (isDataRcvd == true)
+ 			   processRcvdData();
 			else
-			{
-				numOfBadFrames++;
-			}
-			if (packetReceived == 1)
-			{
-				uint32_t timeNow = PIOS_Thread_Systime();
-				sumOfTime += (timeNow-timeLastMean);
-
-				numOfFrames++;
-
-                meanTime = sumOfTime/numOfFrames;
-                meanTime++;
-                meanTime--;
-				timeLastMean = timeNow;
-				packetReceived = 0;
-			}
-
-
+			   processTimeout();
 		}
 
 	}
@@ -468,7 +410,7 @@ uint8_t isEsp8266Available()
 	return 0;
 }
 
-void retrieveDataFromEsp82661()
+uint8_t retrieveDataFromEsp82661()
 {
 	    memset(esp8266_rx_buffer, 0, ESP8266_RX_BUFFER_LEN);
 	    uint8_t state=1;
@@ -476,6 +418,7 @@ void retrieveDataFromEsp82661()
 		uint8_t c;//,rx_index;
 		volatile uint8_t buffer_index = 0;
 		uint8_t rxd = 0;//tmp1=0;
+		uint32_t timeEntered = PIOS_Thread_Systime();
 		while (1) {
 			rxd = PIOS_COM_ReceiveBuffer(Esp8266Port, &c, 1,10);
 			if (rxd > 0)
@@ -539,14 +482,48 @@ void retrieveDataFromEsp82661()
 				  case 5:
 					  esp8266_rx_buffer[buffer_index++] = c;
 					  if (esp8266_rx_buffer[buffer_index - 1] == '\n'	&& esp8266_rx_buffer[buffer_index - 2] == '\r')
-					  	return;
+					  	return true;
 				  default:
 				    break;
 				}
 				if (buffer_index >= 63)
-					return;
+					return false;
 			}
 
+			uint32_t timeInFunction = PIOS_Thread_Systime();
+			if (timeInFunction - timeEntered >= 1000 )
+			{
+				return false;
+			}
 		}
+
+}
+
+void processTimeout()
+{
+   memset(&local_gcrdata.Channel[0],0, 8 * sizeof(uint16_t));
+   GCSReceiverSet(&local_gcrdata);
+}
+
+void processRcvdData() {
+	uint8_t startingIndex = confirmData();
+	if (startingIndex != 255) {
+		uint8_t colonIndex = findColon(startingIndex);
+		if (colonIndex == 0 ) return;
+		uint8_t data_changed = 0;
+		uint8_t* oldGcr = (uint8_t*) &local_gcrdata.Channel[0];
+		uint8_t* newGcr = (uint8_t*) &esp8266_rx_buffer[colonIndex + 1];
+		for (uint8_t cntr = 0; cntr < 16; cntr++) {
+			if (oldGcr[cntr] != newGcr[cntr]) {
+				data_changed = 1;
+				break;
+			}
+		}
+		if (data_changed == 1) {
+			memcpy(&local_gcrdata.Channel[0],
+					&esp8266_rx_buffer[colonIndex + 1], 8 * sizeof(uint16_t));
+			GCSReceiverSet(&local_gcrdata);
+		}
+	}
 
 }
