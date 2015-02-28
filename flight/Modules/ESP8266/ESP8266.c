@@ -29,10 +29,10 @@ extern void gcsreceiver_updated(UAVObjEvent * ev);
 
 uint8_t ramlog[4000];
 uint8_t ramlog_index = 0;
-#define TASK_PRIORITY                   PIOS_THREAD_PRIO_HIGHEST
+#define TASK_PRIORITY                   PIOS_THREAD_PRIO_HIGH
 #define STACK_SIZE_BYTES            1850
 #define ESP8266_RX_BUFFER_LEN 64
-#define ESP8266_COM_TIMEOUT_MS              100
+#define ESP8266_COM_TIMEOUT_MS              10
 // ****************
 // Private variables
 
@@ -47,7 +47,7 @@ static bool module_enabled = false;
 
 static struct pios_thread *esp8266TaskHandle;
 
-static char* esp8266_rx_buffer;
+static uint8_t* esp8266_rx_buffer;
 
 // ****************
 /**
@@ -91,7 +91,7 @@ int32_t Esp8266Initialize(void) {
 #endif
 	memset(ramlog, 0, 4000);
 
-	esp8266_rx_buffer = PIOS_malloc(ESP8266_RX_BUFFER_LEN);
+	esp8266_rx_buffer = (uint8_t*)PIOS_malloc(ESP8266_RX_BUFFER_LEN);
 		PIOS_Assert(esp8266_rx_buffer);
 		memset(esp8266_rx_buffer, 0, ESP8266_RX_BUFFER_LEN);
 	//TODO: updateSettings needs to be fixed
@@ -168,12 +168,13 @@ static void Esp8266Task(void *parameters) {
 		configureEsp8266(atCipBuffer, 1000);
 		PIOS_Thread_Sleep(10);
 		//configureEsp8266(ATCIPSTATUS,700);
+
 		while (1) {
-			retrieveDataFromEsp8266();
+			retrieveDataFromEsp82661();
 
 			uint8_t startingIndex = confirmData();
 
-			if (startingIndex != 0) {
+			if (startingIndex != 255) {
 				uint8_t colonIndex = findColon(startingIndex);
 				if (colonIndex == 0 ) continue;
 				data_changed = 0;
@@ -339,30 +340,44 @@ void retrieveDataFromEsp8266()
 {
 	memset(esp8266_rx_buffer, 0, ESP8266_RX_BUFFER_LEN);
 
-		uint8_t c[64],rx_index;
+		uint8_t c;//,rx_index;
 		volatile uint8_t buffer_index = 0;
-		uint8_t rxd = 0;
+		uint8_t rxd = 0;//tmp1=0;
+		//memset(&c[0], 0, 64);
 		while (1) {
 			//memset(&c[0], 0, 64);
-			rxd = PIOS_COM_ReceiveBuffer(Esp8266Port, &c[0], 64,
-					ESP8266_COM_TIMEOUT_MS);
+			rxd = PIOS_COM_ReceiveBuffer(Esp8266Port, &c, 1,0);
 			if (rxd > 0)
 			{
-				for (rx_index = 0; rx_index < rxd; rx_index++)
+				/*for (rx_index = 0; rx_index < rxd; rx_index++)
 				{
 					esp8266_rx_buffer[buffer_index++] = c[rx_index];
 				    ramlog[ramlog_index++] = c[rx_index];
 				    if (ramlog_index >= 4000)
 				    	ramlog_index=0;
-				}
-				/*esp8266_rx_buffer[buffer_index++] = c;
-				 ramlog[ramlog_index++] = c;*/
+				}*/
+				esp8266_rx_buffer[buffer_index++] = c;
+				 ramlog[ramlog_index++] = c;
+				 if (ramlog_index >= 4000)
+					ramlog_index=0;
 
-				if (esp8266_rx_buffer[buffer_index - 1] == '\n'
-						&& esp8266_rx_buffer[buffer_index - 2] == '\r')
-					break;
-				if (buffer_index >= 63)
-					break;
+				if (esp8266_rx_buffer[buffer_index - 1] == '\n'	&& esp8266_rx_buffer[buffer_index - 2] == '\r')
+				{
+					for (int i = 0 ; i < buffer_index-2 ; i++)
+						if(esp8266_rx_buffer[buffer_index] == '+' &&
+						   esp8266_rx_buffer[buffer_index+1] == 'I' &&
+						   esp8266_rx_buffer[buffer_index+2] == 'P' &&
+						   esp8266_rx_buffer[buffer_index+3] == 'D' )
+					        break;
+					buffer_index=0;
+					memset(esp8266_rx_buffer, 0, ESP8266_RX_BUFFER_LEN);
+					continue;
+				}
+				/*if (buffer_index >= 63)
+					buffer_index=0;
+				    tmp1=buffer_index;
+				    tmp1++;
+					break;*/
 
 
 			}
@@ -419,7 +434,7 @@ uint8_t confirmData()
 		return index;
    	}
 
-   	return 0;
+   	return 255;
 
 }
 
@@ -451,4 +466,87 @@ uint8_t isEsp8266Available()
 	if (configureEsp8266(AT, 700) == 0 )
 		return 1; // :) yeah , I know :P
 	return 0;
+}
+
+void retrieveDataFromEsp82661()
+{
+	    memset(esp8266_rx_buffer, 0, ESP8266_RX_BUFFER_LEN);
+	    uint8_t state=1;
+
+		uint8_t c;//,rx_index;
+		volatile uint8_t buffer_index = 0;
+		uint8_t rxd = 0;//tmp1=0;
+		while (1) {
+			rxd = PIOS_COM_ReceiveBuffer(Esp8266Port, &c, 1,10);
+			if (rxd > 0)
+			{
+				 ramlog[ramlog_index++] = c;
+				 if (ramlog_index >= 4000)
+					ramlog_index=0;
+
+				switch(state)
+				{
+				  case 1:
+					  if (c == '+')
+					  {
+						  esp8266_rx_buffer[buffer_index++] = c;
+						  state = 2;
+					  }
+					  else
+					  {
+						  buffer_index=0;
+					  }
+					  break;
+				  case 2:
+					  if (c == 'I')
+					  {
+						  esp8266_rx_buffer[buffer_index++] = c;
+						  state = 3;
+					  }
+					  else
+					  {
+						  memset(esp8266_rx_buffer, 0, ESP8266_RX_BUFFER_LEN);
+						  buffer_index=0;
+						  state = 1;
+					  }
+					  break;
+				  case 3:
+					  if (c == 'P')
+					  {
+						  esp8266_rx_buffer[buffer_index++] = c;
+						  state = 4;
+					  }
+					  else
+					  {
+						  memset(esp8266_rx_buffer, 0, ESP8266_RX_BUFFER_LEN);
+						  buffer_index=0;
+						  state = 1;
+					  }
+					  break;
+				  case 4:
+					  if (c == 'D')
+					  {
+						  esp8266_rx_buffer[buffer_index++] = c;
+						  state = 5;
+					  }
+					  else
+					  {
+						  memset(esp8266_rx_buffer, 0, ESP8266_RX_BUFFER_LEN);
+						  buffer_index=0;
+						  state = 1;
+					  }
+					break;
+				  case 5:
+					  esp8266_rx_buffer[buffer_index++] = c;
+					  if (esp8266_rx_buffer[buffer_index - 1] == '\n'	&& esp8266_rx_buffer[buffer_index - 2] == '\r')
+					  	return;
+				  default:
+				    break;
+				}
+				if (buffer_index >= 63)
+					return;
+			}
+
+		}
+
 }

@@ -145,7 +145,6 @@ int32_t PIOS_USART_Init(uintptr_t * usart_id, const struct pios_usart_cfg * cfg)
 {
 	PIOS_DEBUG_Assert(usart_id);
 	PIOS_DEBUG_Assert(cfg);
-
 	struct pios_usart_dev * usart_dev;
 
 	usart_dev = (struct pios_usart_dev *) PIOS_USART_alloc();
@@ -322,6 +321,7 @@ static void PIOS_USART_generic_irq_handler(uintptr_t usart_id)
 	/* Check if RXNE flag is set */
 	if (USART_GetITStatus(usart_dev->cfg->regs, USART_IT_RXNE)) {
 		uint8_t byte = (uint8_t)USART_ReceiveData(usart_dev->cfg->regs);
+
 		if (usart_dev->rx_in_cb) {
 			(void) (usart_dev->rx_in_cb)(usart_dev->rx_in_context, &byte, 1, NULL, &rx_need_yield);
 		}
